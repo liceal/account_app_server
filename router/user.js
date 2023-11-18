@@ -5,6 +5,7 @@ const UserDB = require('../mongo/user.js')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const { jwtAuth, secret } = require('./jwtAuth.js')
+const moment = require('moment')
 // const jwtAuth = require('koa-jwt')
 
 // const secret = 'liceal-secret'
@@ -94,6 +95,28 @@ router
     ctx.body = {
       message: '登出成功'
     }
+  })
+  .put('/update', async (ctx, next) => {
+    const { id, avatar, username, password } = ctx.request.body
+    await UserDB.updateOne(
+      { _id: id },
+      {
+        avatar,
+        username,
+        password,
+        updateTime: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
+      }
+    ).then(async res => {
+      if (res.modifiedCount === 1) {
+        const user = await UserDB.findById(id)
+        ctx.body = {
+          message: `ID: ${id} 用户更新成功`,
+          data: user
+        }
+      } else {
+        ctx.throw(500, `ID: ${id} 用户不存在`)
+      }
+    })
   })
 
 module.exports = router

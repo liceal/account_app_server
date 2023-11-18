@@ -19,8 +19,8 @@ app.use(async (ctx, next) => {
     console.error('捕获的异常:', err);
     ctx.status = err.status || 500;
     ctx.body = {
-      error: err.message,
-      code: err.status
+      message: err.message,
+      code: ctx.status
     };
   }
 });
